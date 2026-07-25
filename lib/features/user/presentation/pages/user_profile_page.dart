@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:grpc_app/core/network/maintenance_interceptor.dart';
 import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
 import 'package:grpc_app/features/user/presentation/controller/current_user_controller.dart';
-import 'package:grpc_app/features/system_alerts/domain/services/mock_api_interceptor.dart';
+
 
 class UserProfilePage extends ConsumerWidget {
   const UserProfilePage({super.key});
@@ -68,8 +69,8 @@ class UserProfilePage extends ConsumerWidget {
                 const SizedBox(height: 64),
                 OutlinedButton.icon(
                   onPressed: () {
-                    // Simulate a global 503 from the API Interceptor
-                    ref.read(apiInterceptorProvider).simulate503Error();
+                    // Simulate a global 503 by directly calling the trigger function
+                    ref.read(maintenanceInterceptorProvider).onMaintenanceModeTriggered?.call();
                   },
                   icon: const Icon(Icons.warning, color: Colors.orange),
                   label: const Text('Simulate 503 Maintenance', style: TextStyle(color: Colors.orange)),

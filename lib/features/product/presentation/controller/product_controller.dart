@@ -16,6 +16,7 @@ class ProductController extends AsyncNotifier<List<Product>> {
       final res = await ref.read(productServiceProvider).getAllProducts();
       return res;
     } catch (e, st) {
+  
       rethrow;
     }
   }

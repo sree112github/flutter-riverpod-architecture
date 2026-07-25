@@ -40,6 +40,7 @@ class AuthServiceImpl implements IAuthService {
 
   @override
   Future<bool> isLoggedIn() async {
+    await Future.delayed(const Duration(seconds: 5)); // Simulate network delay
     final token = await _localStorage.getString(StorageKeys.accessToken);
     return token != null && token.isNotEmpty;
   }

@@ -48,6 +48,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           expectedPath = '/intro';
           break;
         case AppState.ready:
+          // Wait for auth state to finish loading before routing
+          if (authState.isLoading) {
+            expectedPath = '/splash';
+            break;
+          }
+          
           // App is ready, now we check auth
           final isAuthed = authState.value ?? false;
           

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/router/app_state.dart';
 import 'package:grpc_app/features/system_alerts/domain/services/mock_remote_config_service.dart';
-import 'package:grpc_app/features/system_alerts/domain/services/mock_api_interceptor.dart';
+import 'package:grpc_app/core/network/maintenance_interceptor.dart';
 import 'package:grpc_app/features/system_alerts/domain/services/network_service.dart';
 import 'package:grpc_app/core/storage/storage_provider.dart';
 import 'package:grpc_app/core/storage/storage_keys.dart';
@@ -16,7 +16,7 @@ class AppStateNotifier extends Notifier<AppState> {
     _initialize();
     
     // Listen to interceptor for maintenance mode
-    ref.read(apiInterceptorProvider).onMaintenanceModeTriggered = () {
+    ref.read(maintenanceInterceptorProvider).onMaintenanceModeTriggered = () {
       state = AppState.maintenance;
     };
     
