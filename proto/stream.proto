@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package stream;
+
+// Go package option (update module path to match your go module)
+option go_package = "github.com/you/yourrepo/go-server/proto;proto";
+
+message SubscribeRequest {
+  // Topic or prefix. Server will match subscribers to incoming topics.
+  string topic = 1;
+}
+
+message DataPoint {
+  string topic = 1;     // e.g. "devices/esp32-01/telemetry"
+  string payload = 2;   // raw JSON string from device
+  int64 timestamp = 3;  // unix nanoseconds
+}
+
+service Streamer {
+  // Client calls Subscribe and server sends a continuous stream of DataPoint
+  rpc Subscribe(SubscribeRequest) returns (stream DataPoint);
+}
