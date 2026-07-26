@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/network/maintenance_interceptor.dart';
-import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_dependency_provider.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_state.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_event.dart';
 import 'package:grpc_app/features/user/presentation/controller/current_user_controller.dart';
-
 
 class UserProfilePage extends ConsumerWidget {
   const UserProfilePage({super.key});
@@ -11,8 +12,8 @@ class UserProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(currentUserControllerProvider);
-    final authState = ref.watch(authControllerProvider);
-    final isLoggingOut = authState.isLoading;
+    final authBloc = ref.watch(authBlocProvider);
+    final isLoggingOut = authBloc.state is AuthLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,9 +30,8 @@ class UserProfilePage extends ConsumerWidget {
                 )
               : IconButton(
                   icon: const Icon(Icons.logout),
-                  onPressed: () async {
-                    // go_router will automatically redirect to /login once this finishes
-                    await ref.read(authControllerProvider.notifier).logout();
+                  onPressed: () {
+                    authBloc.add(AuthLogoutRequested());
                   },
                 )
         ],

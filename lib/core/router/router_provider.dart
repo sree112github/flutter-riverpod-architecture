@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grpc_app/core/router/app_state.dart';
 import 'package:grpc_app/core/router/app_state_provider.dart';
-import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
-import 'package:grpc_app/features/auth/presentation/pages/login_page.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_dependency_provider.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_state.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/pages/login_page.dart';
+import 'dart:async';
 import 'package:grpc_app/features/product/presentation/pages/product_crud_page.dart';
 import 'package:grpc_app/features/splash/presentation/pages/splash_page.dart';
 import 'package:grpc_app/features/onboarding/presentation/pages/terms_conditions_page.dart';
@@ -22,7 +24,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier, // Triggers redirect on state change
     redirect: (context, state) {
       final appState = ref.read(appStateProvider);
-      final authState = ref.read(authControllerProvider);
+      final authBloc = ref.read(authBlocProvider);
+      final authState = authBloc.state;
       final currentPath = state.uri.path;
       
       // Determine what path we SHOULD be on based on AppState
@@ -49,13 +52,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           break;
         case AppState.ready:
           // Wait for auth state to finish loading before routing
-          if (authState.isLoading) {
+          if (authState is AuthLoading || authState is AuthInitial) {
             expectedPath = '/splash';
             break;
           }
           
           // App is ready, now we check auth
-          final isAuthed = authState.value ?? false;
+          final isAuthed = authState is AuthAuthenticated;
           
           if (!isAuthed) {
             // Not authenticated: Must be on /login
@@ -143,8 +146,17 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 // A custom listenable to trigger GoRouter refreshes when Riverpod providers update
 class _RouterNotifier extends ChangeNotifier {
+  late final StreamSubscription _subscription;
+
   _RouterNotifier(Ref ref) {
     ref.listen(appStateProvider, (_, __) => notifyListeners());
-    ref.listen(authControllerProvider, (_, __) => notifyListeners());
+    final authBloc = ref.read(authBlocProvider);
+    _subscription = authBloc.stream.listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

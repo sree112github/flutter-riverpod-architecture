@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_dependency_provider.dart';
+import 'package:grpc_app/features/auth_bloc/presentation/bloc/auth_state.dart';
 import 'package:grpc_app/features/user/domain/entity/user.dart';
 import 'package:grpc_app/features/user/presentation/provider/user_provider.dart';
 
@@ -12,7 +13,7 @@ class CurrentUserController extends AsyncNotifier<User?> {
   @override
   Future<User?> build() async {
     // 1. Watch the authentication state
-    final isLoggedIn = ref.watch(authControllerProvider).value ?? false;
+    final isLoggedIn = ref.watch(authBlocProvider).state is AuthAuthenticated;
 
     // 2. If logged in, fetch the user profile
     if (isLoggedIn) {

@@ -1,8 +1,8 @@
 import 'package:grpc_app/core/storage/local_storage.dart';
 import 'package:grpc_app/core/storage/storage_keys.dart';
-import 'package:grpc_app/features/auth/domain/entity/auth_params.dart';
-import 'package:grpc_app/features/auth/domain/entity/auth_token.dart';
-import 'package:grpc_app/features/auth/domain/repository/auth_repository.dart';
+import 'package:grpc_app/features/auth_bloc/domain/entity/auth_params.dart';
+import 'package:grpc_app/features/auth_bloc/domain/entity/auth_token.dart';
+import 'package:grpc_app/features/auth_bloc/domain/repository/auth_repository.dart';
 
 abstract interface class IAuthService {
   Future<AuthToken> login(LoginParams params);
