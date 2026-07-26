@@ -75,11 +75,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             expectedPath = '/login';
           } else {
             // Authenticated: Allowed to be on / or /profile
-            // If they are on a login or onboarding screen, redirect to home
+            // If they are on a login, onboarding, or system alert screen, redirect to home
             final isAuthOrOnboarding = currentPath == '/login' || 
                                        currentPath == '/splash' || 
                                        currentPath == '/terms' || 
-                                       currentPath == '/intro';
+                                       currentPath == '/intro' ||
+                                       currentPath == '/maintenance' ||
+                                       currentPath == '/network-error' ||
+                                       currentPath == '/force-update';
             if (isAuthOrOnboarding) {
               expectedPath = '/';
             } else {

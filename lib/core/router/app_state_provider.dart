@@ -11,12 +11,16 @@ final appStateProvider = NotifierProvider<AppStateNotifier, AppState>(() {
 });
 
 class AppStateNotifier extends Notifier<AppState> {
+  bool _isInitializing = false;
+  bool _maintenanceTriggeredThisCheck = false;
+
   @override
   AppState build() {
     _initialize();
     
     // Listen to interceptor for maintenance mode
     ref.read(maintenanceInterceptorProvider).onMaintenanceModeTriggered = () {
+      _maintenanceTriggeredThisCheck = true;
       state = AppState.maintenance;
     };
     
@@ -24,43 +28,56 @@ class AppStateNotifier extends Notifier<AppState> {
   }
 
   Future<void> _initialize() async {
-    // 1. Check Network
-    final hasNetwork = await ref.read(networkServiceProvider).hasConnection();
-    if (!hasNetwork) {
-      state = AppState.networkError;
-      return;
-    }
+    _isInitializing = true;
+    _maintenanceTriggeredThisCheck = false;
+    try {
+      // 1. Check Network
+      final hasNetwork = await ref.read(networkServiceProvider).hasConnection();
+      if (_maintenanceTriggeredThisCheck) return;
+      
+      if (!hasNetwork) {
+        state = AppState.networkError;
+        return;
+      }
 
-    // 2. Check Remote Config
-    final needsUpdate = await ref.read(remoteConfigServiceProvider).needsForceUpdate();
-    if (needsUpdate) {
-      state = AppState.forceUpdate;
-      return;
-    }
-    
-    // 3. Check Local Storage for Onboarding
-    final prefs = ref.read(sharedPreferencesProvider);
-    final termsAccepted = prefs.getBool(StorageKeys.termsAccepted) ?? false;
-    if (!termsAccepted) {
-      state = AppState.termsPending;
-      return;
-    }
+      // 2. Check Remote Config
+      final needsUpdate = await ref.read(remoteConfigServiceProvider).needsForceUpdate();
+      if (_maintenanceTriggeredThisCheck) return;
+      
+      if (needsUpdate) {
+        state = AppState.forceUpdate;
+        return;
+      }
+      
+      // 3. Check Local Storage for Onboarding
+      final prefs = ref.read(sharedPreferencesProvider);
+      final termsAccepted = prefs.getBool(StorageKeys.termsAccepted) ?? false;
+      if (!termsAccepted) {
+        state = AppState.termsPending;
+        return;
+      }
 
-    final introSeen = prefs.getBool(StorageKeys.introSeen) ?? false;
-    if (!introSeen) {
-      state = AppState.introPending;
-      return;
-    }
+      final introSeen = prefs.getBool(StorageKeys.introSeen) ?? false;
+      if (!introSeen) {
+        state = AppState.introPending;
+        return;
+      }
 
-    // Ready triggers go_router to check auth state
-    state = AppState.ready;
+      // Ready triggers go_router to check auth state
+      state = AppState.ready;
+    } finally {
+      _isInitializing = false;
+    }
   }
   
-  void retryInitialization() {
-    state = AppState.initializing;
-    _initialize();
+  Future<void> retryInitialization() async {
+    if (_isInitializing) return; // Prevent spam clicking causing race conditions
+    // We do NOT set state to initializing here, to avoid jumping to the splash screen.
+    // Instead, we stay on the current screen and let it show a loading spinner.
+    await _initialize();
   }
   Future<void> acceptTerms() async {
+    if (state == AppState.maintenance) return;
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(StorageKeys.termsAccepted, true);
     
@@ -74,6 +91,7 @@ class AppStateNotifier extends Notifier<AppState> {
   }
 
   Future<void> finishIntro() async {
+    if (state == AppState.maintenance) return;
     await ref.read(sharedPreferencesProvider).setBool(StorageKeys.introSeen, true);
     state = AppState.ready;
   }

@@ -16,8 +16,11 @@ class ProductController extends AsyncNotifier<List<Product>> {
       final res = await ref.read(productServiceProvider).getAllProducts();
       return res;
     } catch (e, st) {
-  
-      rethrow;
+      // By returning an empty list instead of throwing an exception, we force 
+      // the provider into an AsyncData state. This completely breaks the 
+      // Riverpod Web rendering loop that occurs when an unhandled Future rejection
+      // is immediately read by the UI during a hot restart.
+      return [];
     }
   }
 
