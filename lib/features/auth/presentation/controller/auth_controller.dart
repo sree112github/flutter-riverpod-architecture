@@ -14,7 +14,7 @@ class AuthController extends AsyncNotifier<bool> {
   }
 
   Future<void> login(String email, String password) async {
-    state = const AsyncValue.loading();
+    state = const AsyncLoading<bool>().copyWithPrevious(state);
     try {
       final service = ref.read(authServiceProvider);
       await service.login(LoginParams(email: email, password: password));
@@ -28,7 +28,7 @@ class AuthController extends AsyncNotifier<bool> {
   }
 
   Future<void> loginWithGoogle() async {
-    state = const AsyncValue.loading();
+    state = const AsyncLoading<bool>().copyWithPrevious(state);
     try {
       final service = ref.read(authServiceProvider);
       await service.loginWithGoogle();
@@ -40,7 +40,7 @@ class AuthController extends AsyncNotifier<bool> {
   }
 
   Future<void> logout() async {
-    state = const AsyncValue.loading();
+    state = const AsyncLoading<bool>().copyWithPrevious(state);
     try {
       final service = ref.read(authServiceProvider);
       await service.logout();

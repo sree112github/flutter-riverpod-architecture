@@ -30,6 +30,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       
       switch (appState) {
         case AppState.initializing:
+          // Initial app load doesn't need a message
           expectedPath = '/splash';
           break;
         case AppState.networkError:
@@ -50,7 +51,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         case AppState.ready:
           // Wait for auth state to finish loading before routing
           if (authState.isLoading) {
-            expectedPath = '/splash';
+            if (!authState.hasValue) {
+              // Initial auth check
+              if (currentPath == '/terms' || currentPath == '/intro') {
+                // Avoid jarring splash screen jump if they just finished onboarding
+                expectedPath = currentPath;
+              } else {
+                expectedPath = '/splash';
+              }
+            } else {
+              final wasAuthed = authState.value ?? false;
+              final message = wasAuthed ? 'Signing out...' : 'Authenticating...';
+              expectedPath = Uri(path: '/splash', queryParameters: {'message': message}).toString();
+            }
             break;
           }
           
@@ -78,7 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       
       // If we are already on the expected path, no need to redirect
-      if (expectedPath == currentPath) return null;
+      if (expectedPath == currentPath || expectedPath == state.uri.toString()) return null;
       
       // Otherwise, redirect to the expected path
       return expectedPath;
@@ -115,7 +128,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const SplashPage(),
+        builder: (context, state) {
+          final message = state.uri.queryParameters['message'];
+          return SplashPage(message: message);
+        },
       ),
       GoRoute(
         path: '/terms',

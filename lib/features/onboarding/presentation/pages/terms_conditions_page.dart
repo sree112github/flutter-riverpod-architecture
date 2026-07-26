@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/router/app_state_provider.dart';
+import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
 
-class TermsConditionsPage extends ConsumerWidget {
+class TermsConditionsPage extends ConsumerStatefulWidget {
   const TermsConditionsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TermsConditionsPage> createState() => _TermsConditionsPageState();
+}
+
+class _TermsConditionsPageState extends ConsumerState<TermsConditionsPage> {
+  bool _isCompleting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = _isCompleting && authState.isLoading;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Terms & Conditions')),
       body: Padding(
@@ -25,10 +36,17 @@ class TermsConditionsPage extends ConsumerWidget {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: isLoading ? null : () {
+                setState(() => _isCompleting = true);
                 ref.read(appStateProvider.notifier).acceptTerms();
               },
-              child: const Text('Accept Terms'),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Accept Terms'),
             ),
           ],
         ),
