@@ -5,6 +5,7 @@ import 'package:grpc_app/features/product/domain/entity/product.dart';
 import 'package:grpc_app/features/product/domain/entity/product_params.dart';
 import 'package:grpc_app/features/product/presentation/controller/product_controller.dart';
 import 'package:grpc_app/features/user/presentation/controller/current_user_controller.dart';
+import 'package:grpc_app/core/constants/app_keys.dart';
 
 class ProductCrudPage extends ConsumerWidget {
   const ProductCrudPage({super.key});
@@ -23,6 +24,7 @@ class ProductCrudPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            key: AppKeys.profileBtn,
             icon: const Icon(Icons.account_circle, size: 30),
             onPressed: () {
               context.push('/profile');

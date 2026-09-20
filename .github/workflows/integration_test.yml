@@ -1,0 +1,43 @@
+name: Flutter Integration Tests
+
+on:
+  push:
+    branches:
+      - base-level-1-app-development-with-riverpod
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  integration-test:
+    name: Run Integration Tests on Android Emulator
+    runs-on: macos-latest # macOS runners support hardware acceleration for Android emulators
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # Adjust to your Flutter version
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Integration Tests on Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          profile: Nexus 6
+          script: flutter test integration_test/auth_flow_test.dart

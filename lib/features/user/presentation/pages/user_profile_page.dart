@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/network/maintenance_interceptor.dart';
 import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
 import 'package:grpc_app/features/user/presentation/controller/current_user_controller.dart';
+import 'package:grpc_app/core/constants/app_keys.dart';
 
 
 class UserProfilePage extends ConsumerWidget {
@@ -28,6 +29,7 @@ class UserProfilePage extends ConsumerWidget {
                   ),
                 )
               : IconButton(
+                  key: AppKeys.logoutBtn,
                   icon: const Icon(Icons.logout),
                   onPressed: () async {
                     // go_router will automatically redirect to /login once this finishes

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/router/app_state_provider.dart';
 import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
+import 'package:grpc_app/core/constants/app_keys.dart';
 
 class IntroductionPage extends ConsumerStatefulWidget {
   const IntroductionPage({super.key});
@@ -33,6 +34,7 @@ class _IntroductionPageState extends ConsumerState<IntroductionPage> {
             ),
             const SizedBox(height: 40),
             ElevatedButton(
+              key: AppKeys.finishIntroBtn,
               onPressed: isLoading ? null : () {
                 setState(() => _isCompleting = true);
                 ref.read(appStateProvider.notifier).finishIntro();

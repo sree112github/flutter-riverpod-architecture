@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/router/app_state_provider.dart';
 import 'package:grpc_app/features/auth/presentation/controller/auth_controller.dart';
+import 'package:grpc_app/core/constants/app_keys.dart';
 
 class TermsConditionsPage extends ConsumerStatefulWidget {
   const TermsConditionsPage({super.key});
@@ -36,6 +37,7 @@ class _TermsConditionsPageState extends ConsumerState<TermsConditionsPage> {
               ),
             ),
             ElevatedButton(
+              key: AppKeys.acceptTermsBtn,
               onPressed: isLoading ? null : () {
                 setState(() => _isCompleting = true);
                 ref.read(appStateProvider.notifier).acceptTerms();

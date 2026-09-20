@@ -24,10 +24,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final appState = ref.read(appStateProvider);
       final authState = ref.read(authControllerProvider);
       final currentPath = state.uri.path;
-      
+
       // Determine what path we SHOULD be on based on AppState
       String? expectedPath;
-      
+
       switch (appState) {
         case AppState.initializing:
           // Initial app load doesn't need a message
@@ -61,28 +61,34 @@ final routerProvider = Provider<GoRouter>((ref) {
               }
             } else {
               final wasAuthed = authState.value ?? false;
-              final message = wasAuthed ? 'Signing out...' : 'Authenticating...';
-              expectedPath = Uri(path: '/splash', queryParameters: {'message': message}).toString();
+              final message = wasAuthed
+                  ? 'Signing out...'
+                  : 'Authenticating...';
+              expectedPath = Uri(
+                path: '/splash',
+                queryParameters: {'message': message},
+              ).toString();
             }
             break;
           }
-          
+
           // App is ready, now we check auth
           final isAuthed = authState.value ?? false;
-          
+
           if (!isAuthed) {
             // Not authenticated: Must be on /login
             expectedPath = '/login';
           } else {
             // Authenticated: Allowed to be on / or /profile
             // If they are on a login, onboarding, or system alert screen, redirect to home
-            final isAuthOrOnboarding = currentPath == '/login' || 
-                                       currentPath == '/splash' || 
-                                       currentPath == '/terms' || 
-                                       currentPath == '/intro' ||
-                                       currentPath == '/maintenance' ||
-                                       currentPath == '/network-error' ||
-                                       currentPath == '/force-update';
+            final isAuthOrOnboarding =
+                currentPath == '/login' ||
+                currentPath == '/splash' ||
+                currentPath == '/terms' ||
+                currentPath == '/intro' ||
+                currentPath == '/maintenance' ||
+                currentPath == '/network-error' ||
+                currentPath == '/force-update';
             if (isAuthOrOnboarding) {
               expectedPath = '/';
             } else {
@@ -92,18 +98,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
           break;
       }
-      
+
       // If we are already on the expected path, no need to redirect
-      if (expectedPath == currentPath || expectedPath == state.uri.toString()) return null;
-      
+      if (expectedPath == currentPath || expectedPath == state.uri.toString())
+        return null;
+
       // Otherwise, redirect to the expected path
       return expectedPath;
     },
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const ProductCrudPage(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const ProductCrudPage()),
       GoRoute(
         path: '/profile',
         builder: (context, state) => const UserProfilePage(),
@@ -114,17 +118,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const LoginPage(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              // Smooth slide-up transition
-              const begin = Offset(0.0, 1.0); // Start from bottom
-              const end = Offset.zero;
-              final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.easeOutQuart));
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  // Smooth slide-up transition
+                  const begin = Offset(0.0, 1.0); // Start from bottom
+                  const end = Offset.zero;
+                  final tween = Tween(
+                    begin: begin,
+                    end: end,
+                  ).chain(CurveTween(curve: Curves.easeOutQuart));
 
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: child,
-              );
-            },
+                  return SlideTransition(
+                    position: animation.drive(tween),
+                    child: child,
+                  );
+                },
             transitionDuration: const Duration(milliseconds: 600),
           );
         },
@@ -157,6 +165,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ForceUpdatePage(),
       ),
     ],
+
+    // ADD THIS:
+    errorBuilder: (context, state) {
+      return Scaffold(
+        body: Center(child: Text('Page not found: ${state.uri.path}')),
+      );
+    },
   );
 });
 

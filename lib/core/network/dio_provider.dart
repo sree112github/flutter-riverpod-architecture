@@ -4,6 +4,8 @@ import 'package:grpc_app/core/network/auth_interceptor.dart';
 import 'package:grpc_app/core/network/maintenance_interceptor.dart';
 import 'package:grpc_app/core/storage/storage_provider.dart';
 
+import 'package:grpc_app/core/network/error_interceptor.dart';
+
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
@@ -17,6 +19,7 @@ final dioProvider = Provider<Dio>((ref) {
   final localStorage = ref.read(localStorageProvider);
   dio.interceptors.add(AuthInterceptor(localStorage));
   dio.interceptors.add(ref.read(maintenanceInterceptorProvider));
+  dio.interceptors.add(ErrorInterceptor());
   dio.interceptors.add(LogInterceptor(requestUrl: true,requestBody: true,responseBody: true, responseHeader: false, error: true));
   
   return dio;

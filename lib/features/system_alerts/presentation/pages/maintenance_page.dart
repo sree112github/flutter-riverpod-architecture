@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc_app/core/router/app_state_provider.dart';
+import 'package:grpc_app/core/constants/app_keys.dart';
 
 class MaintenancePage extends ConsumerStatefulWidget {
   const MaintenancePage({super.key});
@@ -70,6 +71,7 @@ class _MaintenancePageState extends ConsumerState<MaintenancePage> {
             ),
             const SizedBox(height: 40),
             ElevatedButton.icon(
+              key: AppKeys.maintenanceRetryBtn,
               onPressed: _isRetrying ? null : _performRetry,
               icon: _isRetrying
                   ? const SizedBox(
