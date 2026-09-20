@@ -12,7 +12,7 @@ on:
 jobs:
   integration-test:
     name: Run Integration Tests on Android Emulator
-    runs-on: macos-13 # macos-13 is Intel-based, which supports x86_64 Android emulators (macos-latest is ARM)
+    runs-on: ubuntu-latest # ubuntu-latest provisions instantly and supports KVM acceleration for the emulator
 
     steps:
       - name: Checkout Repository
