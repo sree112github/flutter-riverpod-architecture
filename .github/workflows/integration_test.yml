@@ -39,4 +39,6 @@ jobs:
           target: default
           arch: x86_64
           profile: Nexus 6
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: flutter test integration_test/auth_flow_test.dart
